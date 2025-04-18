@@ -1,26 +1,27 @@
-from src.masks import LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number
+from src.widget import mask_account_card
 
 
 def main() -> None:
     """
     Основная функция программы.
-    1. Запрашивает у пользователя номер карты и номер счета.
-    2. Валидирует введенные данные.
-    3. Маскирует корректные данные в соответствии с требованиями.
-    4. Выводит замаскированные номера на экран.
+    1. Запрашивает у пользователя тип карты/счета и номер.
+    2. Маскирует корректные данные в соответствии с требованиями.
+    3. Выводит замаскированные номера на экран.
+    4. Обрабатывает возможные ошибки.
     """
-    # Запрашиваем у пользователя номер карты, осуществляем валидацию данных и маскируем в соответствии с ТЗ.
-    user_card_number = input("Введите номер карты: ")
-    correct_card_number = data_validation(user_card_number, LENGTH_CARD_NUM)
-    mask_card = get_mask_card_number(correct_card_number)
+    while True:
+        try:
+            payment_identifier = input("Введите тип карты/счета и номер: ").strip().title()
+            result = mask_account_card(payment_identifier)
+            print(f"Результат: {result}")
+        except ValueError as e:
+            print(f"Ошибка: {e}")
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка: {e}")
 
-    # Запрашиваем у пользователя номер счета, осуществляем валидацию данных и маскируем в соответствии с ТЗ.
-    user_account_number = input("Введите номер счета: ")
-    correct_account_number = data_validation(user_account_number, LENGTH_ACCOUNT_NUM)
-    mask_account = get_mask_account(correct_account_number)
-
-    # Выводим результат на экран.
-    print(mask_card, mask_account, sep="\n")
+        again = input("Хотите повторить процедуру? (да/нет): ")
+        if again.lower() != 'да':
+            break
 
 
 if __name__ == "__main__":
