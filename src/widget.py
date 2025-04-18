@@ -1,0 +1,35 @@
+# Список популярных платежных систем, карты которых обычно имеют 16 цифр в номере.
+from src.masks import data_validation, get_mask_card_number, get_mask_account, LENGTH_CARD_NUM, LENGTH_ACCOUNT_NUM
+
+payment_systems = (
+    "Visa",
+    "Mastercard",
+    "Maestro",
+)
+
+
+def mask_account_card(payment_identifier: str) -> str:
+    """Функция принимает один аргумент — строку, содержащую тип и номер карты или счета.
+    И возвращает строку с замаскированным номером."""
+    parts_pay_id = payment_identifier.split()
+
+    if len(parts_pay_id) < 2:
+        raise ValueError("""Недостаточно данных: должен быть тип и номер карты/счета.
+        Пример: Visa Classic 6831982476737658
+                Счет 35383033474447895560""")
+
+    identifier = " ".join(parts_pay_id[: -1])
+    numbers = parts_pay_id[-1]
+
+    if identifier.startswith(payment_systems):
+        correct_number = data_validation(numbers, LENGTH_CARD_NUM)
+        masked = get_mask_card_number(correct_number)
+    elif identifier == "Счет":
+        correct_number = data_validation(numbers, LENGTH_ACCOUNT_NUM)
+        masked = get_mask_account(correct_number)
+    else:
+        raise ValueError("""Неправильно указан тип карты или счета.
+        Возможные варианты карт: Visa, Maestro, Mastercard
+        Пример: Visa Classic 6831982476737658
+                Счет 35383033474447895560""")
+    return f"{identifier} {masked}"
