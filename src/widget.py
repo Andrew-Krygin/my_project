@@ -1,5 +1,5 @@
 # Список популярных платежных систем, карты которых обычно имеют 16 цифр в номере.
-from src.masks import data_validation, get_mask_card_number, get_mask_account, LENGTH_CARD_NUM, LENGTH_ACCOUNT_NUM
+from src.masks import LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number
 
 payment_systems = (
     "Visa",
