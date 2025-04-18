@@ -33,3 +33,11 @@ def mask_account_card(payment_identifier: str) -> str:
         Пример: Visa Classic 6831982476737658
                 Счет 35383033474447895560""")
     return f"{identifier} {masked}"
+
+
+def get_date(date_and_time: str) -> str:
+    """Функция принимает на вход строку с датой в формате "2024-03-11T02:26:18.671407"
+    и возвращает строку с датой в формате "ДД.ММ.ГГГГ"("11.03.2024")."""
+    parts = date_and_time.split('T')
+    date = parts[0].split("-")
+    return f"{date[-1]}.{date[-2]}.{date[-3]}"
