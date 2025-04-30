@@ -2,9 +2,9 @@
 from src.masks import LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number
 
 payment_systems = (
-    "Visa",
-    "Mastercard",
-    "Maestro",
+    "Visa", "Visa Classic", "Visa Gold", "Visa Platinum", "Visa Debit",
+    "Mastercard", "MasterCard Standard", "MasterCard Gold", "MasterCard Platinum", "MasterCard Debit",
+    "Maestro", "Maestro Debit", "Maestro Business", "Maestro Electronic",
 )
 
 
@@ -21,7 +21,7 @@ def mask_account_card(payment_identifier: str) -> str:
     identifier = " ".join(parts_pay_id[: -1])
     numbers = parts_pay_id[-1]
 
-    if identifier.startswith(payment_systems):
+    if identifier in payment_systems:
         correct_number = data_validation(numbers, LENGTH_CARD_NUM)
         masked = get_mask_card_number(correct_number)
     elif identifier == "Счет":
