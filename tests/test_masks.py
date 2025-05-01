@@ -1,38 +1,48 @@
-import pytest
 from contextlib import nullcontext as does_not_raise
 from unittest.mock import patch
 
-from src.masks import ( LENGTH_CARD_NUM, LENGTH_ACCOUNT_NUM,
-                        is_valid_number, request_valid_data, data_validation,
-                        get_mask_card_number, get_mask_account
-                       )
+import pytest
+
+from src.masks import (LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number,
+                       is_valid_number, request_valid_data)
+
+VALID_CASES_NUMS = [
+    # Тесты для карт
+    (("1234567898765432", LENGTH_CARD_NUM), True, does_not_raise()),
+    (("0000000000000000", LENGTH_CARD_NUM), True, does_not_raise()),
+    (("qwsa@er'gt,uhj.n", LENGTH_CARD_NUM), False, does_not_raise()),
+    (("123bc", LENGTH_CARD_NUM), False, does_not_raise()),
+    (("", LENGTH_CARD_NUM), False, does_not_raise()),
+
+    # Тесты для аккаунта
+    (("12345678987654321234", LENGTH_ACCOUNT_NUM), True, does_not_raise()),
+    (("00000000000000000000", LENGTH_ACCOUNT_NUM), True, does_not_raise()),
+    (("qwertfgh;y'u,j.kiolm", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
+    (("123bc", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
+    (("", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
+]
+
+ERROR_CASES_NUMS = [
+    # Тесты для карт
+    ((1234567876543212, LENGTH_CARD_NUM), None, pytest.raises(AttributeError)),
+    (("1234567898765432",), None, pytest.raises(TypeError)),
+
+    # Тесты для аккаунта
+    ((12345678765432120909, LENGTH_ACCOUNT_NUM), None, pytest.raises(AttributeError)),
+    (("12345678987654329876",), None, pytest.raises(TypeError)),
+]
 
 
 class TestValidNumbers:
-    @pytest.mark.parametrize(
-        "param1, param2, res, expectation",
-        [   # Тесты для карт
-            ("1234567898765432", LENGTH_CARD_NUM, True, does_not_raise()),
-            ("0000000000000000", LENGTH_CARD_NUM, True, does_not_raise()),
-            ("qwsa@er'gt,uhj.n", LENGTH_CARD_NUM, False, does_not_raise()),
-            ("123bc", LENGTH_CARD_NUM, False, does_not_raise()),
-            ("", LENGTH_CARD_NUM, False, does_not_raise()),
-
-            # Тесты для аккаунта
-            ("12345678987654321234", LENGTH_ACCOUNT_NUM, True, does_not_raise()),
-            ("00000000000000000000", LENGTH_ACCOUNT_NUM, True, does_not_raise()),
-            ("qwertfgh;y'u,j.kiolm", LENGTH_ACCOUNT_NUM, False, does_not_raise()),
-            ("123bc", LENGTH_ACCOUNT_NUM, False, does_not_raise()),
-            ("", LENGTH_ACCOUNT_NUM, False, does_not_raise()),
-        ]
-    )
-    def test_is_valid_number(self, param1: str, param2: int, res: bool, expectation) -> None:
+    @pytest.mark.parametrize("args, res, expectation", VALID_CASES_NUMS + ERROR_CASES_NUMS)
+    def test_is_valid_number(self, args: tuple, res: bool, expectation) -> None:
         with expectation:
-            assert is_valid_number(param1, param2) == res
+            assert is_valid_number(*args) == res
 
     @pytest.mark.parametrize(
         "input_data, expected, length, expectation",
-        [   # Тест валидации для карты
+        [
+            # Тест валидации для карты
             (["123", "asd12345678", "dfgrtwsd", "", "1234567890987654"],
              "1234567890987654", LENGTH_CARD_NUM, does_not_raise()),
 
@@ -68,6 +78,7 @@ class TestValidNumbers:
             with expectation:
                 result = data_validation(input_value, length)
                 assert result == expected
+
 
 class TestMask:
     def test_get_mask_card_number(self):
