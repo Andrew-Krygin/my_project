@@ -46,6 +46,42 @@
 Пример будет добавлен в ближайшее время.
 
 
-## Authors
+## Тестирование
+Проект использует pytest для модульного тестирования и pytest-cov для оценки покрытия кода. 
 
+- Установите необходимые зависимости для разработки:
+   ```bash
+   poetry add --dev pytest pytest-cov
+   ```
+
+### Запуск тестов
+- Для запуска всех тестов:
+   ```bash
+   poetry run pytest
+   ```
+
+- Для более подробного вывода:
+   ```bash
+   poetry run pytest -v
+   ```
+
+### Проверка покрытия кода
+- Запуск с отображением процента покрытия:
+   ```bash
+   poetry run pytest --cov=src
+   ```
+
+- Для генерации HTML-отчёта покрытия:
+   ```bash
+   poetry run pytest --cov=src --cov-report=html
+   ```
+
+HTML-отчёт будет доступен по пути `htmlcov/index.html`.
+
+### Структура тестов
+- Все тесты расположены в директории `tests/`.
+- Фикстуры и тестовые кейсы вынесены в `tests/conftest.py`.
+- Покрываются модули `src/masks`, `src/processing`, `src/widget`.
+
+## Авторы
 - [Andrew Krygin](https://github.com/Andrew-Krygin)
