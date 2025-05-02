@@ -5,32 +5,7 @@ import pytest
 
 from src.masks import (LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number,
                        is_valid_number, request_valid_data)
-
-VALID_CASES_NUMS = [
-    # Тесты для карт
-    (("1234567898765432", LENGTH_CARD_NUM), True, does_not_raise()),
-    (("0000000000000000", LENGTH_CARD_NUM), True, does_not_raise()),
-    (("qwsa@er'gt,uhj.n", LENGTH_CARD_NUM), False, does_not_raise()),
-    (("123bc", LENGTH_CARD_NUM), False, does_not_raise()),
-    (("", LENGTH_CARD_NUM), False, does_not_raise()),
-
-    # Тесты для аккаунта
-    (("12345678987654321234", LENGTH_ACCOUNT_NUM), True, does_not_raise()),
-    (("00000000000000000000", LENGTH_ACCOUNT_NUM), True, does_not_raise()),
-    (("qwertfgh;y'u,j.kiolm", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
-    (("123bc", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
-    (("", LENGTH_ACCOUNT_NUM), False, does_not_raise()),
-]
-
-ERROR_CASES_NUMS = [
-    # Тесты для карт
-    ((1234567876543212, LENGTH_CARD_NUM), None, pytest.raises(AttributeError)),
-    (("1234567898765432",), None, pytest.raises(TypeError)),
-
-    # Тесты для аккаунта
-    ((12345678765432120909, LENGTH_ACCOUNT_NUM), None, pytest.raises(AttributeError)),
-    (("12345678987654329876",), None, pytest.raises(TypeError)),
-]
+from tests.conftest import ERROR_CASES_MASK_CARD_ACCOUNT, ERROR_CASES_NUMS, VALID_CASES_NUMS
 
 
 class TestValidNumbers:
@@ -80,11 +55,25 @@ class TestValidNumbers:
                 assert result == expected
 
 
-class TestMask:
-    def test_get_mask_card_number(self):
-        result = get_mask_card_number("1234567890785634")
-        assert result == "1234 56** **** 5634"
+class TestMaskCardAccount:
+    @pytest.mark.parametrize(
+        "input_data, ex_res, expectation",
+        [
+            ("1212121212121212", "1212 12** **** 1212", does_not_raise()),
+            ("", " ** **** ", does_not_raise()),
+        ] + ERROR_CASES_MASK_CARD_ACCOUNT)
+    def test_get_mask_card_number(self, input_data: str, ex_res: str, expectation) -> None:
+        with expectation:
+            result = get_mask_card_number(input_data)
+            assert result == ex_res
 
-    def test_get_mask_account(self):
-        result = get_mask_account("12345678900987654321")
-        assert result == "**4321"
+    @pytest.mark.parametrize(
+        "input_data, ex_res, expectation",
+        [
+            ("12121212121212121212", "**1212", does_not_raise()),
+            ("", "**", does_not_raise()),
+        ] + ERROR_CASES_MASK_CARD_ACCOUNT)
+    def test_get_mask_account(self, input_data, ex_res, expectation):
+        with expectation:
+            result = get_mask_account(input_data)
+            assert result == ex_res

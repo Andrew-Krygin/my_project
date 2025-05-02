@@ -4,47 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from src.widget import get_date, mask_account_card, validate_date
-
-ERROR_MESSAGES = {
-    "missing_data": """Недостаточно данных: должен быть тип и номер карты/счета.
-        Пример: Visa Classic 6831982476737658
-                Счет 35383033474447895560""",
-    "incorrect_type": """Неправильно указан тип карты или счета.
-        Возможные варианты карт: Visa, Maestro, Mastercard
-        Пример: Visa Classic 6831982476737658
-                Счет 35383033474447895560""",
-    "invalid_date_format": "Неверный формат данных! Нужен формат ISO 8601."
-}
-
-VALID_CASES_MASKS = [
-    # Тесты для карты
-    ("Visa 1212345678908978", "Visa 1212 34** **** 8978", does_not_raise()),
-    ("Visa Classic 1212345678908978", "Visa Classic 1212 34** **** 8978", does_not_raise()),
-    ("Mastercard 0987654321234567", "Mastercard 0987 65** **** 4567", does_not_raise()),
-    ("Maestro Business 0000000000000000", "Maestro Business 0000 00** **** 0000", does_not_raise()),
-
-    # Тесты для счета
-    ("Счет 23456789098765432123", "Счет **2123", does_not_raise()),
-    ("Счет 00000000000000000000", "Счет **0000", does_not_raise()),
-]
-
-ERROR_CASES_MASKS = [
-    # Тесты для карты
-    ("                   ", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("Visa Glass 1212345678908978", "", pytest.raises(ValueError, match=ERROR_MESSAGES["incorrect_type"])),
-    ("Maestric 0987654321122334", "", pytest.raises(ValueError, match=ERROR_MESSAGES["incorrect_type"])),
-    ("Mastercard1234567890876543", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("1232345676545678", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("><.,'; 1234567876543212,", "", pytest.raises(ValueError, match=ERROR_MESSAGES["incorrect_type"])),
-    ("", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-
-    # Тесты для счета
-    ("                             ", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("Счет12233445566778899098", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("Счит 34243434343434343434", "", pytest.raises(ValueError, match=ERROR_MESSAGES["incorrect_type"])),
-    ("121234455665544345567665", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-    ("", "", pytest.raises(ValueError, match=ERROR_MESSAGES["missing_data"])),
-]
+from tests.conftest import ERROR_CASES_MASKS, ERROR_MESSAGES, VALID_CASES_MASKS
 
 
 class TestMasks:
