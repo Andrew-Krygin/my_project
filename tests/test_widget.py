@@ -16,17 +16,15 @@ class TestMasks:
 
     @pytest.mark.parametrize(
         "input_data, side_effect_input, res, expectation",
-        [   # Тест для карт
+        [  # Тест для карт
             ("Visa 435432", [" ", "234234234", "1223345678909876"], "Visa 1223 34** **** 9876", does_not_raise()),
             ("Visa 12#34@56,8.0!978", ["", "4343545465768776"], "Visa 4343 54** **** 8776", does_not_raise()),
-
             # Тест для счета
             ("Счет 1234", [" ", "45673756756474563", "00000000000000000000"], "Счет **0000", does_not_raise()),
             ("Счет 12@2,44.5!76#567№909", ["", "12233445566778890998"], "Счет **0998", does_not_raise()),
-        ]
+        ],
     )
-    def test_mask_account_card_retry(
-            self, input_data: str, side_effect_input: list, res: str, expectation) -> None:
+    def test_mask_account_card_retry(self, input_data: str, side_effect_input: list, res: str, expectation) -> None:
         with patch("builtins.input", side_effect=side_effect_input):
             with expectation:
                 result = mask_account_card(input_data)
@@ -46,7 +44,7 @@ class TestDate:
             ("", False, does_not_raise()),
             ("           ", False, does_not_raise()),
             (12032024, None, pytest.raises(TypeError)),
-        ]
+        ],
     )
     def test_validate_date(self, data, res, expectation):
         with expectation:
@@ -64,7 +62,7 @@ class TestDate:
             ("", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
             ("           ", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
             (12032024, None, pytest.raises(TypeError)),
-        ]
+        ],
     )
     def test_get_date(self, data, res, expectation):
         with expectation:
