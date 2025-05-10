@@ -12,6 +12,7 @@
 - `src/widget` - модуль, который проверяет входные данные, маскирует их при необходимости, и преобразует дату 
 в нужный формат.
 - `src/processing` - модуль содержит функции для обработки списка словарей.
+- `src/generators` - модуль содержит функции для работы с транзакциями и генерацией номеров карт.
 
 
 ## Установка
@@ -42,8 +43,107 @@
 
 
 ## Пример использования
+### Функции модуля generators.
 
-Пример будет добавлен в ближайшее время.
+- filter_by_currency
+```bash
+   def filter_by_currency(lst_transactions: list[dict], currency: str) -> Iterator[dict]
+```
+Фильтрует список транзакций, возвращая только те, в которых указана заданная валюта.
+
+#### Пример:
+```bash
+   from src.generators import filter_by_currency
+    
+    transactions = [
+    [
+            {
+                "id": 939719570,
+                "state": "EXECUTED",
+                "date": "2018-06-30T02:08:58.425572",
+                "operationAmount": {
+                    "amount": "9824.07",
+                    "currency": {
+                        "name": "USD",
+                        "code": "USD"
+                    }
+                },
+                "description": "Перевод организации",
+                "from": "Счет 75106830613657916952",
+                "to": "Счет 11776614605963066702"
+            },
+            {
+                "id": 142264268,
+                "state": "EXECUTED",
+                "date": "2019-04-04T23:20:05.206878",
+                "operationAmount": {
+                    "amount": "79114.93",
+                    "currency": {
+                        "name": "руб.",
+                        "code": "RUB"
+                    }
+                },
+                "description": "Перевод со счета на счет",
+                "from": "Счет 19708645243227258542",
+                "to": "Счет 75651667383060284188"
+            }
+    ]
+    
+    filtered = list(filter_by_currency(transactions, "USD"))
+```
+#### Вывод:
+```
+[
+        {
+            "id": 939719570,
+            "state": "EXECUTED",
+            "date": "2018-06-30T02:08:58.425572",
+            "operationAmount": {
+                "amount": "9824.07",
+                "currency": {
+                    "name": "USD",
+                    "code": "USD"
+                }
+            },
+            "description": "Перевод организации",
+            "from": "Счет 75106830613657916952",
+            "to": "Счет 11776614605963066702"
+        }
+]
+```
+
+- transaction_descriptions
+```bash
+   def transaction_descriptions(transactions: list[dict]) -> Iterator[str]
+```
+Извлекает описания транзакций из списка словарей.
+
+#### Пример:
+```bash
+   descriptions = list(transaction_descriptions(transactions))
+```
+#### Вывод:
+
+```
+["Перевод организации", "Перевод со счета на счет"]
+```
+
+- card_number_generator
+
+```bash
+   def card_number_generator(start: int, stop: int) -> Iterator[str]
+```
+Генерирует номера карт от start до stop в формате XXXX XXXX XXXX XXXX.
+
+#### Пример:
+```bash
+   card = list(card_number_generator(1, 3))
+```
+
+#### Вывод:
+```
+['0000 0000 0000 0001', '0000 0000 0000 0002', '0000 0000 0000 0003']
+```
 
 
 ## Тестирование
