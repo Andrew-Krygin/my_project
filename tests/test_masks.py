@@ -1,23 +1,23 @@
 from contextlib import nullcontext as does_not_raise
+from typing import ContextManager
 from unittest.mock import patch
 
 import pytest
 
-from src.masks import (
-    LENGTH_ACCOUNT_NUM,
-    LENGTH_CARD_NUM,
-    data_validation,
-    get_mask_account,
-    get_mask_card_number,
-    is_valid_number,
-    request_valid_data,
-)
-from tests.conftest import ERROR_CASES_MASK_CARD_ACCOUNT, ERROR_CASES_NUMS, VALID_CASES_NUMS
+from src.masks import (LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM, data_validation, get_mask_account, get_mask_card_number,
+                       is_valid_number, request_valid_data)
+from tests.fixtures.mask_cases import (ERROR_CASES_MASK_CARD_ACCOUNT, ERROR_CASES_NUMS, POSITIVE_CASES_MASK_ACCOUNT,
+                                       POSITIVE_CASES_MASK_CARD, VALID_CASES_NUMS)
 
 
 class TestValidNumbers:
-    @pytest.mark.parametrize("args, res, expectation", VALID_CASES_NUMS + ERROR_CASES_NUMS)
-    def test_is_valid_number(self, args: tuple, res: bool, expectation) -> None:
+    @pytest.mark.parametrize("args, res, expectation", VALID_CASES_NUMS)
+    def test_positive_is_valid_number(self, args: tuple, res: bool, expectation: ContextManager) -> None:
+        with expectation:
+            assert is_valid_number(*args) == res
+
+    @pytest.mark.parametrize("args, res, expectation", ERROR_CASES_NUMS)
+    def test_negative_is_valid_number(self, args: tuple, res: bool, expectation: ContextManager) -> None:
         with expectation:
             assert is_valid_number(*args) == res
 
@@ -40,7 +40,9 @@ class TestValidNumbers:
             ),
         ],
     )
-    def test_request_valid_data(self, input_data: list, expected: str, length: int, expectation) -> None:
+    def test_request_valid_data(
+        self, input_data: list, expected: str, length: int, expectation: ContextManager
+    ) -> None:
         with patch("builtins.input", side_effect=input_data):
             with expectation:
                 result = request_valid_data("1232323asas", length)
@@ -69,7 +71,7 @@ class TestValidNumbers:
         ],
     )
     def test_data_validation(
-        self, input_value: str, side_effect_input: list, length: int, expected: str, expectation
+        self, input_value: str, side_effect_input: list, length: int, expected: str, expectation: ContextManager
     ) -> None:
         with patch("builtins.input", side_effect=side_effect_input):
             with expectation:
@@ -78,28 +80,26 @@ class TestValidNumbers:
 
 
 class TestMaskCardAccount:
-    @pytest.mark.parametrize(
-        "input_data, ex_res, expectation",
-        [
-            ("1212121212121212", "1212 12** **** 1212", does_not_raise()),
-            ("", " ** **** ", does_not_raise()),
-        ]
-        + ERROR_CASES_MASK_CARD_ACCOUNT,
-    )
-    def test_get_mask_card_number(self, input_data: str, ex_res: str, expectation) -> None:
+    @pytest.mark.parametrize("input_data, res, expectation", POSITIVE_CASES_MASK_CARD)
+    def test_valid_get_mask_card_number(self, input_data: str, res: str, expectation: ContextManager) -> None:
         with expectation:
             result = get_mask_card_number(input_data)
-            assert result == ex_res
+            assert result == res
 
-    @pytest.mark.parametrize(
-        "input_data, ex_res, expectation",
-        [
-            ("12121212121212121212", "**1212", does_not_raise()),
-            ("", "**", does_not_raise()),
-        ]
-        + ERROR_CASES_MASK_CARD_ACCOUNT,
-    )
-    def test_get_mask_account(self, input_data, ex_res, expectation):
+    @pytest.mark.parametrize("input_data, res, expectation", ERROR_CASES_MASK_CARD_ACCOUNT)
+    def test_invalid_get_mask_card_number(self, input_data: str, res: str, expectation: ContextManager) -> None:
+        with expectation:
+            result = get_mask_card_number(input_data)
+            assert result == res
+
+    @pytest.mark.parametrize("input_data, res, expectation", POSITIVE_CASES_MASK_ACCOUNT)
+    def test_valid_get_mask_account(self, input_data: str, res: str, expectation: ContextManager) -> None:
         with expectation:
             result = get_mask_account(input_data)
-            assert result == ex_res
+            assert result == res
+
+    @pytest.mark.parametrize("input_data, res, expectation", ERROR_CASES_MASK_CARD_ACCOUNT)
+    def test_invalid_get_mask_account(self, input_data: str, res: str, expectation: ContextManager) -> None:
+        with expectation:
+            result = get_mask_account(input_data)
+            assert result == res

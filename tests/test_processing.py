@@ -1,3 +1,5 @@
+from typing import ContextManager
+
 import pytest
 
 from src.processing import filter_by_state, sort_by_date
@@ -17,16 +19,16 @@ class TestFilterByState:
         assert len(result) == count
 
     @pytest.mark.parametrize(
-        "state",
+        "state, res",
         [
-            ("EXECUTED",),
-            ("CANCELED",),
-            (),
+            (("EXECUTED",), []),
+            (("CANCELED",), []),
+            ((), []),
         ],
     )
-    def test_empty_filter_by_state(self, empty_data: list, state: str) -> None:
+    def test_empty_filter_by_state(self, empty_data: list, state: str, res: list) -> None:
         result = filter_by_state(empty_data, state)
-        assert result == []
+        assert result == res
 
     @pytest.mark.parametrize(
         "expectation",
@@ -36,7 +38,7 @@ class TestFilterByState:
             pytest.raises(AttributeError),
         ],
     )
-    def test_invalid_filter_by_state(self, invalid_type_data: list, expectation) -> None:
+    def test_invalid_filter_by_state(self, invalid_type_data: list, expectation: ContextManager) -> None:
         with expectation:
             assert filter_by_state(invalid_type_data)
 
@@ -94,6 +96,6 @@ class TestSortByDate:
             (False, pytest.raises(TypeError)),
         ],
     )
-    def test_invalid_sort_by_date(self, invalid_date_data: list, reverse: bool, expectation) -> None:
+    def test_invalid_sort_by_date(self, invalid_date_data: list, reverse: bool, expectation: ContextManager) -> None:
         with expectation:
             assert sort_by_date(invalid_date_data, reverse)
