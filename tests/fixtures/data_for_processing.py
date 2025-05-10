@@ -3,7 +3,7 @@ import pytest
 
 # Фикстуры используются в модуле test_processing.py
 @pytest.fixture
-def sample_data():
+def sample_data() -> list[dict]:
     return [
         {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
         {"id": 939719570, "state": "EXECUTED", "date": "2018-06-30T02:08:58.425572"},
@@ -15,7 +15,7 @@ def sample_data():
 
 
 @pytest.fixture
-def empty_data():
+def empty_data() -> list[dict]:
     return [
         {},
         {},
@@ -24,12 +24,12 @@ def empty_data():
 
 
 @pytest.fixture
-def invalid_type_data():
+def invalid_type_data() -> list:
     return [1234, ("aededa",), set()]
 
 
 @pytest.fixture
-def invalid_date_data():
+def invalid_date_data() -> list[dict]:
     return [
         {"id": 41428829, "state": "EXECUTED", "date": None},
         {"id": 41428829, "state": "EXECUTED", "date": 1234},

@@ -47,7 +47,7 @@ RUB_TRANSACTIONS = [
 
 # Фикстура sample_transactions используется в модуле test_generators.
 @pytest.fixture
-def sample_transactions():
+def sample_transactions() -> list[dict]:
     return [
         {
             "id": 939719570,

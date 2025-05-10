@@ -1,7 +1,8 @@
-import pytest
 from contextlib import nullcontext as does_not_raise
-from src.masks import LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM
 
+import pytest
+
+from src.masks import LENGTH_ACCOUNT_NUM, LENGTH_CARD_NUM
 
 # Позитивные кейсы для функции test_is_valid_number из класса TestValidNumbers модуля test_masks.
 VALID_CASES_NUMS = [
@@ -31,6 +32,17 @@ ERROR_CASES_NUMS = [
 
 # Негативные кейсы для функций: test_get_mask_card_number, test_get_mask_account
 # из класса TestMaskCardAccount модуля test_masks.
+POSITIVE_CASES_MASK_CARD = [
+    # Тесты для карт
+    ("1212121212121212", "1212 12** **** 1212", does_not_raise()),
+    ("", " ** **** ", does_not_raise()),
+]
+
+POSITIVE_CASES_MASK_ACCOUNT = [
+    ("12121212121212121212", "**1212", does_not_raise()),
+    ("", "**", does_not_raise()),
+]
+
 ERROR_CASES_MASK_CARD_ACCOUNT = [
     # Тесты для карт и аккаунта
     (None, None, pytest.raises(TypeError)),
