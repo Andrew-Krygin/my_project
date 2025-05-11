@@ -1,15 +1,23 @@
 from contextlib import nullcontext as does_not_raise
+from typing import ContextManager
 from unittest.mock import patch
 
 import pytest
 
 from src.widget import get_date, mask_account_card, validate_date
-from tests.conftest import ERROR_CASES_MASKS, ERROR_MESSAGES, VALID_CASES_MASKS
+from tests.fixtures.error_messages import ERROR_MESSAGES_WIDGET
+from tests.fixtures.widget_cases import ERROR_CASES_MASKS, VALID_CASES_MASKS
 
 
 class TestMasks:
-    @pytest.mark.parametrize("card, res, expectation", VALID_CASES_MASKS + ERROR_CASES_MASKS)
-    def test_mask_account_card(self, card: str, res: str, expectation) -> None:
+    @pytest.mark.parametrize("card, res, expectation", VALID_CASES_MASKS)
+    def test_valid_mask_account_card(self, card: str, res: str, expectation: ContextManager) -> None:
+        with expectation:
+            result = mask_account_card(card)
+            assert result == res
+
+    @pytest.mark.parametrize("card, res, expectation", ERROR_CASES_MASKS)
+    def test_invalid_mask_account_card(self, card: str, res: str, expectation: ContextManager) -> None:
         with expectation:
             result = mask_account_card(card)
             assert result == res
@@ -24,7 +32,9 @@ class TestMasks:
             ("Счет 12@2,44.5!76#567№909", ["", "12233445566778890998"], "Счет **0998", does_not_raise()),
         ],
     )
-    def test_mask_account_card_retry(self, input_data: str, side_effect_input: list, res: str, expectation) -> None:
+    def test_mask_account_card_retry(
+        self, input_data: str, side_effect_input: list, res: str, expectation: ContextManager
+    ) -> None:
         with patch("builtins.input", side_effect=side_effect_input):
             with expectation:
                 result = mask_account_card(input_data)
@@ -46,7 +56,7 @@ class TestDate:
             (12032024, None, pytest.raises(TypeError)),
         ],
     )
-    def test_validate_date(self, data, res, expectation):
+    def test_validate_date(self, data: str, res: bool, expectation: ContextManager) -> None:
         with expectation:
             result = validate_date(data)
             assert result == res
@@ -55,16 +65,16 @@ class TestDate:
         "data, res, expectation",
         [
             ("2024-03-11T02:26:18.671407", "11.03.2024", does_not_raise()),
-            ("11.03.2021", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
-            ("03/11/2022", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
-            ("2024/03/11", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
-            ("2024@03@11", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
-            ("", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
-            ("           ", None, pytest.raises(TypeError, match=ERROR_MESSAGES["invalid_date_format"])),
+            ("11.03.2021", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("03/11/2022", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("2024/03/11", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("2024@03@11", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("           ", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
             (12032024, None, pytest.raises(TypeError)),
         ],
     )
-    def test_get_date(self, data, res, expectation):
+    def test_get_date(self, data: str, res: bool, expectation: ContextManager) -> None:
         with expectation:
             result = get_date(data)
             assert result == res
