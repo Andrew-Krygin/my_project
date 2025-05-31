@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import Literal
 
 # Объявляем тип для уровня логирования:
@@ -10,7 +11,9 @@ def setup_logger(
     name: str,
     level: LogLevel = "INFO",
     log_file: str | None = None,
-    fmt: str = "%(asctime)s [%(levelname)-5s] %(module)s.%(funcName)s:%(lineno)d - %(message)s",
+    log_to_console: bool = False,
+    fmt: str = "%(asctime)s [%(levelname)-5s] logger:%(name)s module:%(module)s func:%(funcName)s:%(lineno)d - %("
+    "message)s",
 ) -> logging.Logger:
     """
     Универсальная настройка логгера.
@@ -18,6 +21,7 @@ def setup_logger(
     :param name: Имя логгера (обычно __name__)
     :param level: уровень логирования (по умолчанию INFO)
     :param log_file: путь к лог-файлу (если нужно логировать в файл)
+    :param log_to_console: по умолчанию не создается (если нужно логировать в консоль)
     :param fmt: формат сообщения
     :return: настроенный логгер
     """
@@ -32,13 +36,17 @@ def setup_logger(
     formatter = logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
     # Создаем handler для вывода в консоль.
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    if log_to_console:
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
 
     # Создаем handler для вывода в файл.
     if log_file:
-        file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+        logs_dir = Path(__file__).resolve().parent.parent / "logs"
+        log_path = logs_dir / log_file
+
+        file_handler = logging.FileHandler(log_path, mode="w", encoding="utf-8")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
