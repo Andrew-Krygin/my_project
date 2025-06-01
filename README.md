@@ -1,21 +1,19 @@
-
 # my_project
 
 ## Описание проекта
 Проект представляет собой банковский виджет, который показывает несколько последних успешных банковских операций 
 клиента.
 
-
 ## Структура проекта
 
-- `src/masks` - модуль, содержащий функции для маскировки данных (например, номеров карт и счетов), чтобы защитить
-конфиденциальность пользователя.
-- `src/widget` - модуль, который проверяет входные данные, маскирует их при необходимости, и форматирует 
-дату в удобочитаемый вид.
-- `src/processing` - модуль содержит функции для обработки списка словарей.
-- `src/generators` - модуль содержит функции для работы с транзакциями и генерацией номеров карт.
-- `src/decorators` - модуль с универсальным логирующим декоратором `@log`, который отслеживает вызовы, аргументы, 
-результат выполнения и исключения. Поддерживает логирование как в консоль, так и в файл.
+- **src/masks**: Модуль для маскировки данных (номера карт, счета и т.д.)
+- **src/widget**: Модуль для проверки входных данных, их маскировки и форматирования даты.
+- **src/processing**: Модуль для обработки списка словарей.
+- **src/generators**: Модуль для работы с транзакциями и генерацией номеров карт.
+- **src/decorators**: Модуль с декоратором `@log`, который логирует информацию о вызовах.
+- **src/utils**: Модуль для работы с JSON данными и файловыми операциями.
+- **src/external_api**: Модуль для работы с транзакциями и конвертацией валют в RUB с использованием внешнего API.
+- **src/transaction_read**: Модуль для работы с данными из CSV и XLSX файлов.
 
 
 ## Установка
@@ -48,7 +46,7 @@
 ## Пример использования
 ### Модуль generators.
 
-- ### `filter_by_currency()`
+### `filter_by_currency()`
 ```python
 from typing import Iterator
 
@@ -117,7 +115,7 @@ filtered = list(filter_by_currency(transactions, "USD"))
 ]
 ```
 
-- ### `transaction_descriptions()`
+### `transaction_descriptions()`
 ```python
 from typing import Iterator
 
@@ -135,7 +133,7 @@ descriptions = list(transaction_descriptions(transactions))
 ["Перевод организации", "Перевод со счета на счет"]
 ```
 
-- ### `card_number_generator()`
+### `card_number_generator()`
 ```python
 from typing import Iterator
 
@@ -156,7 +154,7 @@ card = list(card_number_generator(1, 3))
 
 ### Модуль decorators.
 
-- ### Декоратор `@log()`
+### Декоратор `@log()`
 ```python
 from src.decorators import log
     
@@ -200,6 +198,202 @@ Traceback (most recent call last):
            ~~^~~
 ZeroDivisionError: division by zero
 ```
+### Модуль utils.
+### load_transactions(path_to_file: str) -> list:
+ Функция принимает на вход путь до JSON-файла и возвращает список словарей с данными о финансовых транзакциях.
+
+#### Пример:
+```python
+import json
+import os
+
+
+BASE_DIR = os.path.dirname(__file__)
+PATH_TO_FILE = os.path.join(os.path.dirname(BASE_DIR), "data", "operations.json")
+
+print(load_transactions(PATH_TO_FILE))
+```
+#### Вывод:
+```
+[
+  {
+    "id": 441945886,
+    "state": "EXECUTED",
+    "date": "2019-08-26T10:50:58.294041",
+    "operationAmount": {
+      "amount": "31957.58",
+      "currency": {
+        "name": "руб.",
+        "code": "RUB"
+      }
+    },
+    "description": "Перевод организации",
+    "from": "Maestro 1596837868705199",
+    "to": "Счет 64686473678894779589"
+  },
+  {
+    "id": 41428829,
+    "state": "EXECUTED",
+    "date": "2019-07-03T18:35:29.512364",
+    "operationAmount": {
+      "amount": "8221.37",
+      "currency": {
+        "name": "USD",
+        "code": "USD"
+      }
+    },
+    "description": "Перевод организации",
+    "from": "MasterCard 7158300734726758",
+    "to": "Счет 35383033474447895560"
+  },
+]
+```
+### Модуль external_api.
+### def calculate_transaction_to_rub(transaction: dict) -> float:
+Функция принимает на вход транзакцию и возвращает сумму транзакции (amount) в рублях. 
+Если валюта уже RUB — возвращает сумму без обращения к API.
+Если валюта отличается, делает запрос к ExchangeRates API для конвертации.
+
+#### Пример:
+Если транзакция в рублях.
+```python
+import json
+import os
+
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+
+
+calculate_transaction_to_rub({
+    "id": 441945886,
+    "state": "EXECUTED",
+    "date": "2019-08-26T10:50:58.294041",
+    "operationAmount": {
+      "amount": "31957.58",
+      "currency": {
+        "name": "руб.",
+        "code": "RUB"
+      }
+    },
+    "description": "Перевод организации",
+    "from": "Maestro 1596837868705199",
+    "to": "Счет 64686473678894779589"
+  })
+```
+
+#### Вывод:
+```
+31957.58
+```
+Если транзакция в USD или EUR.
+```python
+calculate_transaction_to_rub({
+    "id": 41428829,
+    "state": "EXECUTED",
+    "date": "2019-07-03T18:35:29.512364",
+    "operationAmount": {
+      "amount": "8221.37",
+      "currency": {
+        "name": "USD",
+        "code": "USD"
+      }
+    },
+    "description": "Перевод организации",
+    "from": "MasterCard 7158300734726758",
+    "to": "Счет 35383033474447895560"
+  })
+```
+
+#### Вывод:
+```
+634531.56
+```
+
+### Модуль transaction_read.
+### def transaction_read_csv(path_to_file_csv: Path) -> list[dict]:
+Читает CSV-файл и возвращает список транзакций в виде словарей.
+#### Пример:
+```python
+from pathlib import Path
+import pandas as pd
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+PATH_TO_FILE_CSV = DATA_DIR / "transactions.csv"
+
+
+print(transaction_read_csv(PATH_TO_FILE_CSV))
+```
+#### Вывод
+```
+[
+    {
+        'id': 650703.0, 
+        'state': 'EXECUTED', 
+        'date': '2023-09-05T11:30:32Z', 
+        'amount': 16210.0, 
+        'currency_name': 'Sol', 
+        'currency_code': 'PEN', 
+        'from': 'Счет 58803664561298323391', 
+        'to': 'Счет 39745660563456619397', 
+        'description': 'Перевод организации'
+    }, 
+    {
+        'id': 3598919.0, 
+        'state': 'EXECUTED', 
+        'date': '2020-12-06T23:00:58Z', 
+        'amount': 29740.0, 
+        'currency_name': 'Peso', 
+        'currency_code': 'COP', 
+        'from': 'Discover 3172601889670065', 
+        'to': 'Discover 0720428384694643', 
+        'description': 'Перевод с карты на карту'
+    },
+]
+```
+### def transaction_read_xlsx(path_to_file_xlsx: Path) -> list:
+Читает XLSX-файл и возвращает список транзакций в виде словарей.
+#### Пример:
+```python
+from pathlib import Path
+import pandas as pd
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+PATH_TO_FILE_XLSX = DATA_DIR / "transactions_excel.xlsx"
+
+
+print(transaction_read_xlsx(PATH_TO_FILE_XLSX))
+```
+#### Вывод
+```
+[
+    {
+        'id': 3176764.0, 
+        'state': 'CANCELED', 
+        'date': '2022-08-24T14:32:38Z', 
+        'amount': 16652.0, 
+        'currency_name': 'Euro', 
+        'currency_code': 'EUR', 
+        'from': 'Mastercard 8387037425051294', 
+        'to': 'American Express 5556525473658852', 
+        'description': 'Перевод с карты на карту'
+    }, 
+    {
+        'id': 3598919.0, 
+        'state': 'EXECUTED', 
+        'date': '2020-12-06T23:00:58Z', 
+        'amount': 29740.0, 
+        'currency_name': 'Peso', 
+        'currency_code': 'COP', 
+        'from': 'Discover 3172601889670065', 
+        'to': 'Discover 0720428384694643', 
+        'description': 'Перевод с карты на карту'
+    },
+]
+```
+
 ## Тестирование
 Проект использует pytest для модульного тестирования и pytest-cov для оценки покрытия кода. 
 
@@ -235,7 +429,8 @@ HTML-отчёт будет доступен по пути `htmlcov/index.html`.
 ### Структура тестов
 - Все тесты расположены в директории `tests/`.
 - Фикстуры и тестовые кейсы вынесены в папку `tests/fixture/`.
-- Покрываются модули `src/masks`, `src/processing`, `src/widget`, `src/decorators`.
+- Покрываются модули `src/masks`, `src/processing`, `src/widget`, `src/decorators`, `src/utils`, 
+  `src/external_api`, `src/transaction_read`.
 
 ## Авторы
 - [Andrew Krygin](https://github.com/Andrew-Krygin)
