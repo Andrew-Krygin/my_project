@@ -4,10 +4,10 @@ ERROR_MESSAGES_WIDGET = {
         Пример: Visa Classic 6831982476737658
                 Счет 35383033474447895560""",
     "incorrect_type": """Неправильно указан тип карты или счета.
-        Возможные варианты карт: Visa, Maestro, Mastercard
+        Возможные варианты карт: Visa, Maestro, Mastercard, Discover, American Express, МИР
         Пример: Visa Classic 6831982476737658
                 Счет 35383033474447895560""",
-    "invalid_date_format": "Неверный формат данных! Нужен формат ISO 8601.",
+    "invalid_date_format": "Неверный формат даты. Примеры допустимых: '2024-03-11', '11.03.2024', 'March 11, 2024'.",
 }
 
 
