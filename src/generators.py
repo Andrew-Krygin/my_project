@@ -5,7 +5,10 @@ def filter_by_currency(lst_transactions: list[dict], currency: str) -> Iterator[
     """Функция возвращает итератор, который поочередно выдает транзакции, где валюта
     операции соответствует заданной."""
     for transact in lst_transactions:
-        currency_name = transact.get("operationAmount", {}).get("currency", {}).get("code")
+        if "operationAmount" in transact:
+            currency_name = transact.get("operationAmount", {}).get("currency", {}).get("code")
+        else:
+            currency_name = transact.get("currency_code", "")
 
         if currency_name == currency:
             yield transact
