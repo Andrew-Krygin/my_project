@@ -22,7 +22,7 @@ payment_systems = (
     "Maestro Electronic",
     "Discover",
     "American Express",
-    "МИР",
+    "Мир",
 )
 
 
@@ -50,7 +50,7 @@ def mask_account_card(payment_identifier: str) -> str:
     else:
         raise ValueError(
             """Неправильно указан тип карты или счета.
-        Возможные варианты карт: Visa, Maestro, Mastercard, Discover, American Express, МИР
+        Возможные варианты карт: Visa, Maestro, MasterСard, Discover, American Express, МИР
         Пример: Visa Classic 6831982476737658
                 Счет 35383033474447895560"""
         )
