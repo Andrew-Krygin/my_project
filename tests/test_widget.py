@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.widget import get_date, mask_account_card, validate_date
+from src.widget import get_date, mask_account_card
 from tests.fixtures.error_messages import ERROR_MESSAGES_WIDGET
 from tests.fixtures.widget_cases import ERROR_CASES_MASKS, VALID_CASES_MASKS
 
@@ -45,30 +45,12 @@ class TestDate:
     @pytest.mark.parametrize(
         "data, res, expectation",
         [
-            ("2024-03-11T02:26:18.671407", True, does_not_raise()),
-            ("2024-03-11T02:26:18", False, does_not_raise()),
-            ("11.03.2021", False, does_not_raise()),
-            ("03/11/2022", False, does_not_raise()),
-            ("2024/03/11", False, does_not_raise()),
-            ("2024@03@11", False, does_not_raise()),
-            ("", False, does_not_raise()),
-            ("           ", False, does_not_raise()),
-            (12032024, None, pytest.raises(TypeError)),
-        ],
-    )
-    def test_validate_date(self, data: str, res: bool, expectation: ContextManager) -> None:
-        with expectation:
-            result = validate_date(data)
-            assert result == res
-
-    @pytest.mark.parametrize(
-        "data, res, expectation",
-        [
             ("2024-03-11T02:26:18.671407", "11.03.2024", does_not_raise()),
-            ("11.03.2021", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
-            ("03/11/2022", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
-            ("2024/03/11", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
-            ("2024@03@11", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
+            ("2024-03-11", "11.03.2024", does_not_raise()),
+            ("11.03.2024", "11.03.2024", does_not_raise()),
+            ("March 11, 2024", "11.03.2024", does_not_raise()),
+            ("11 Mar 2024", "11.03.2024", does_not_raise()),
+            ("вчера", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
             ("", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
             ("           ", None, pytest.raises(TypeError, match=ERROR_MESSAGES_WIDGET["invalid_date_format"])),
             (12032024, None, pytest.raises(TypeError)),
