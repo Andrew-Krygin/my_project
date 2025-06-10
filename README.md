@@ -14,6 +14,9 @@
 - **src/utils**: Модуль для работы с JSON данными и файловыми операциями.
 - **src/external_api**: Модуль для работы с транзакциями и конвертацией валют в RUB с использованием внешнего API.
 - **src/transaction_read**: Модуль для работы с данными из CSV и XLSX файлов.
+- **src/transactions_utils**: Модуль содержит вспомогательные функции, реализующие основную бизнес-логику обработки 
+банковских транзакций.
+
 
 
 ## Установка
@@ -430,7 +433,7 @@ HTML-отчёт будет доступен по пути `htmlcov/index.html`.
 - Все тесты расположены в директории `tests/`.
 - Фикстуры и тестовые кейсы вынесены в папку `tests/fixture/`.
 - Покрываются модули `src/masks`, `src/processing`, `src/widget`, `src/decorators`, `src/utils`, 
-  `src/external_api`, `src/transaction_read`.
+  `src/external_api`, `src/transaction_read`, `src/transactions_utils`.
 
 ## Авторы
 - [Andrew Krygin](https://github.com/Andrew-Krygin)
